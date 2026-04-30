@@ -1,4 +1,4 @@
-// Navbar scroll effect
+// Navbar scroll shadow
 const navbar = document.getElementById("navbar");
 
 window.addEventListener("scroll", () => {
@@ -7,115 +7,69 @@ window.addEventListener("scroll", () => {
 
 // Mobile menu
 const hamburger = document.getElementById("hamburger");
-const navLinks = document.getElementById("navLinks");
+const navLinks = document.querySelector(".nav-links");
 
 hamburger.addEventListener("click", () => {
+  hamburger.classList.toggle("active");
   navLinks.classList.toggle("open");
 });
 
 // Typing effect
-const typed = document.getElementById("typed");
-const words = [
-  "Java Web Applications",
-  "Backend Systems",
-  "Database Projects",
-  "IoT Solutions"
-];
+const typedText = document.getElementById("typed");
+const words = ["Java Web Applications", "Backend Systems", "IoT Solutions", "Database-Driven Projects"];
 
 let wordIndex = 0;
 let charIndex = 0;
-let deleting = false;
+let isDeleting = false;
 
-function typingEffect() {
-  const currentWord = words[wordIndex];
+function typeText() {
+  const word = words[wordIndex];
 
-  if (!deleting) {
-    typed.textContent = currentWord.substring(0, charIndex + 1);
-    charIndex++;
+  typedText.textContent = isDeleting
+    ? word.substring(0, charIndex--)
+    : word.substring(0, charIndex++);
 
-    if (charIndex === currentWord.length) {
-      deleting = true;
-      setTimeout(typingEffect, 1300);
-      return;
-    }
-  } else {
-    typed.textContent = currentWord.substring(0, charIndex - 1);
-    charIndex--;
-
-    if (charIndex === 0) {
-      deleting = false;
-      wordIndex = (wordIndex + 1) % words.length;
-    }
+  if (!isDeleting && charIndex === word.length + 1) {
+    isDeleting = true;
+    setTimeout(typeText, 1200);
+    return;
   }
 
-  setTimeout(typingEffect, deleting ? 45 : 85);
+  if (isDeleting && charIndex === 0) {
+    isDeleting = false;
+    wordIndex = (wordIndex + 1) % words.length;
+  }
+
+  setTimeout(typeText, isDeleting ? 45 : 85);
 }
 
-typingEffect();
+typeText();
 
-// Reveal on scroll
-const revealItems = document.querySelectorAll(".reveal");
+// Reveal animation
+const revealElements = document.querySelectorAll(".reveal");
 
-const revealObserver = new IntersectionObserver(
-  entries => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add("visible");
-      }
-    });
-  },
-  {
-    threshold: 0.15
-  }
-);
-
-revealItems.forEach(item => revealObserver.observe(item));
-
-// Active navbar link
-const sections = document.querySelectorAll("section");
-const links = document.querySelectorAll(".nav-links a");
-
-window.addEventListener("scroll", () => {
-  let current = "";
-
-  sections.forEach(section => {
-    const sectionTop = section.offsetTop - 120;
-
-    if (window.scrollY >= sectionTop) {
-      current = section.getAttribute("id");
+const revealObserver = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add("visible");
     }
   });
+}, { threshold: 0.15 });
 
-  links.forEach(link => {
-    link.classList.remove("active");
+revealElements.forEach(el => revealObserver.observe(el));
 
-    if (link.getAttribute("href") === "#" + current) {
-      link.classList.add("active");
+// Skill bars
+const skillBars = document.querySelectorAll(".bar-fill");
+
+const skillObserver = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.style.width = entry.target.dataset.width + "%";
     }
   });
-});
+}, { threshold: 0.4 });
 
-// Cursor glow
-const cursorGlow = document.querySelector(".cursor-glow");
-
-document.addEventListener("mousemove", e => {
-  cursorGlow.style.left = e.clientX + "px";
-  cursorGlow.style.top = e.clientY + "px";
-});
-
-// Scroll top button
-const topBtn = document.getElementById("topBtn");
-
-window.addEventListener("scroll", () => {
-  topBtn.style.display = window.scrollY > 350 ? "block" : "none";
-});
-
-topBtn.addEventListener("click", () => {
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth"
-  });
-});
+skillBars.forEach(bar => skillObserver.observe(bar));
 
 // Contact form
 const contactForm = document.getElementById("contactForm");
@@ -125,11 +79,4 @@ contactForm.addEventListener("submit", e => {
   e.preventDefault();
   formNote.textContent = "Thank you. Your message is ready.";
   contactForm.reset();
-});
-
-// Close mobile menu after clicking a link
-links.forEach(link => {
-  link.addEventListener("click", () => {
-    navLinks.classList.remove("open");
-  });
 });
